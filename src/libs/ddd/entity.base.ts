@@ -10,29 +10,29 @@ export type AggregateID = string;
 
 export interface BaseEntityProps {
   id: AggregateID;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface CreateEntityProps<T> {
   id: AggregateID;
   props: T;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export abstract class Entity<EntityProps> {
   constructor({
     id,
-    createdAt,
-    updatedAt,
+    created_at,
+    updated_at,
     props,
   }: CreateEntityProps<EntityProps>) {
     this.setId(id);
     this.validateProps(props);
     const now = new Date();
-    this._createdAt = createdAt || now;
-    this._updatedAt = updatedAt || now;
+    this._created_at = created_at || now;
+    this._updated_at = updated_at || now;
     this.props = props;
     this.validate();
   }
@@ -47,9 +47,9 @@ export abstract class Entity<EntityProps> {
    */
   protected abstract _id: AggregateID;
 
-  private readonly _createdAt: Date;
+  private readonly _created_at: Date;
 
-  private _updatedAt: Date;
+  private _updated_at: Date;
 
   get id(): AggregateID {
     return this._id;
@@ -59,12 +59,12 @@ export abstract class Entity<EntityProps> {
     this._id = id;
   }
 
-  get createdAt(): Date {
-    return this._createdAt;
+  get created_at(): Date {
+    return this._created_at;
   }
 
-  get updatedAt(): Date {
-    return this._updatedAt;
+  get updated_at(): Date {
+    return this._updated_at;
   }
 
   static isEntity(entity: unknown): entity is Entity<unknown> {
@@ -99,8 +99,8 @@ export abstract class Entity<EntityProps> {
   public getProps(): EntityProps & BaseEntityProps {
     const propsCopy = {
       id: this._id,
-      createdAt: this._createdAt,
-      updatedAt: this._updatedAt,
+      created_at: this._created_at,
+      updated_at: this._updated_at,
       ...this.props,
     };
     return Object.freeze(propsCopy);
@@ -116,8 +116,8 @@ export abstract class Entity<EntityProps> {
 
     const result = {
       id: this._id,
-      createdAt: this._createdAt,
-      updatedAt: this._updatedAt,
+      created_at: this._created_at,
+      updated_at: this._updated_at,
       ...plainProps,
     };
     return Object.freeze(result);

@@ -1,12 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsAlphanumeric,
-  IsEmail,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { Role } from '@prisma/client';
+import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateUserRequestDto {
   @ApiProperty({
@@ -19,21 +13,14 @@ export class CreateUserRequestDto {
   readonly email: string;
 
   @ApiProperty({ example: 'France', description: 'Country of residence' })
-  @MaxLength(50)
-  @MinLength(4)
   @IsString()
-  @Matches(/^[a-zA-Z ]*$/)
-  readonly country: string;
+  readonly role: Role;
 
   @ApiProperty({ example: '28566', description: 'Postal code' })
-  @MaxLength(10)
-  @MinLength(4)
-  @IsAlphanumeric()
-  readonly postalCode: string;
+  @IsString()
+  readonly name: string;
 
   @ApiProperty({ example: 'Grande Rue', description: 'Street' })
-  @MaxLength(50)
-  @MinLength(5)
-  @Matches(/^[a-zA-Z ]*$/)
-  readonly street: string;
+  @IsString()
+  readonly password: string;
 }

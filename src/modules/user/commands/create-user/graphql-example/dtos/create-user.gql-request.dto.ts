@@ -1,12 +1,6 @@
 import { ArgsType, Field, InputType } from '@nestjs/graphql';
-import {
-  IsAlphanumeric,
-  IsEmail,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { Role } from '@prisma/client';
+import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 
 @ArgsType()
 @InputType()
@@ -17,22 +11,13 @@ export class CreateUserGqlRequestDto {
   @Field()
   readonly email: string;
 
-  @MaxLength(50)
-  @MinLength(4)
   @IsString()
-  @Matches(/^[a-zA-Z ]*$/)
   @Field()
-  readonly country: string;
+  readonly role: Role;
 
-  @MaxLength(10)
-  @MinLength(4)
-  @IsAlphanumeric()
   @Field()
-  readonly postalCode: string;
+  readonly name: string;
 
-  @MaxLength(50)
-  @MinLength(5)
-  @Matches(/^[a-zA-Z ]*$/)
   @Field()
-  readonly street: string;
+  readonly password: string;
 }

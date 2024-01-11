@@ -1,16 +1,10 @@
-import { AggregateRoot, AggregateID } from '@libs/ddd';
+import { AggregateID, AggregateRoot } from '@libs/ddd';
+import { Role } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import { UserCreatedDomainEvent } from './events/user-created.domain-event';
-import { Address, AddressProps } from './value-objects/address.value-object';
-import {
-  CreateUserProps,
-  UpdateUserAddressProps,
-  UserProps,
-  UserRoles,
-} from './user.types';
 import { UserDeletedDomainEvent } from './events/user-deleted.domain-event';
 import { UserRoleChangedDomainEvent } from './events/user-role-changed.domain-event';
-import { UserAddressUpdatedDomainEvent } from './events/user-address-updated.domain-event';
-import { randomUUID } from 'crypto';
+import { CreateUserProps, UserProps } from './user.types';
 
 export class UserEntity extends AggregateRoot<UserProps> {
   protected readonly _id: AggregateID;
@@ -18,7 +12,7 @@ export class UserEntity extends AggregateRoot<UserProps> {
   static create(create: CreateUserProps): UserEntity {
     const id = randomUUID();
     /* Setting a default role since we are not accepting it during creation. */
-    const props: UserProps = { ...create, role: UserRoles.guest };
+    const props: UserProps = { ...create, role: Role.USER };
     const user = new UserEntity({ id, props });
     /* adding "UserCreated" Domain Event that will be published
     eventually so an event handler somewhere may receive it and do an
@@ -27,7 +21,7 @@ export class UserEntity extends AggregateRoot<UserProps> {
       new UserCreatedDomainEvent({
         aggregateId: id,
         email: props.email,
-        ...props.address.unpack(),
+        name: props.name,
       }),
     );
     return user;
@@ -38,11 +32,11 @@ export class UserEntity extends AggregateRoot<UserProps> {
   encapsulated. To get all entity properties (for saving it to a
   database or mapping a response) use .getProps() method
   defined in a EntityBase parent class */
-  get role(): UserRoles {
+  get role(): Role {
     return this.props.role;
   }
 
-  private changeRole(newRole: UserRoles): void {
+  private changeRole(newRole: Role): void {
     this.addEvent(
       new UserRoleChangedDomainEvent({
         aggregateId: this.id,
@@ -55,39 +49,17 @@ export class UserEntity extends AggregateRoot<UserProps> {
   }
 
   makeAdmin(): void {
-    this.changeRole(UserRoles.admin);
+    this.changeRole(Role.ADMIN);
   }
 
-  makeModerator(): void {
-    this.changeRole(UserRoles.moderator);
+  makeClient(): void {
+    this.changeRole(Role.CLIENT);
   }
 
   delete(): void {
     this.addEvent(
       new UserDeletedDomainEvent({
         aggregateId: this.id,
-      }),
-    );
-  }
-
-  /* Update method only changes properties that we allow, in this
-   case only address. This prevents from illegal actions, 
-   for example setting email from outside by doing something
-   like user.email = otherEmail */
-  updateAddress(props: UpdateUserAddressProps): void {
-    const newAddress = new Address({
-      ...this.props.address,
-      ...props,
-    } as AddressProps);
-
-    this.props.address = newAddress;
-
-    this.addEvent(
-      new UserAddressUpdatedDomainEvent({
-        aggregateId: this.id,
-        country: newAddress.country,
-        street: newAddress.street,
-        postalCode: newAddress.postalCode,
       }),
     );
   }

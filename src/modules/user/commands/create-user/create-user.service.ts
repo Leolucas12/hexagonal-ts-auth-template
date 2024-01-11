@@ -1,38 +1,34 @@
-import { UserRepositoryPort } from '@modules/user/database/user.repository.port';
-import { Address } from '@modules/user/domain/value-objects/address.value-object';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Err, Ok, Result } from 'oxide.ts';
-import { CreateUserCommand } from './create-user.command';
-import { UserAlreadyExistsError } from '@modules/user/domain/user.errors';
 import { AggregateID } from '@libs/ddd';
-import { UserEntity } from '@modules/user/domain/user.entity';
 import { ConflictException } from '@libs/exceptions';
-import { Inject } from '@nestjs/common';
-import { USER_REPOSITORY } from '../../user.di-tokens';
+import { UserEntity } from '@modules/user/domain/user.entity';
+import { UserAlreadyExistsError } from '@modules/user/domain/user.errors';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { PrismaService } from '@src/libs/prisma/prisma.service';
+import { hash } from 'bcrypt';
+import { Err, Ok, Result } from 'oxide.ts';
+import { UserProps } from '../../domain/user.types';
+import { CreateUserCommand } from './create-user.command';
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserService implements ICommandHandler {
-  constructor(
-    @Inject(USER_REPOSITORY)
-    protected readonly userRepo: UserRepositoryPort,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async execute(
     command: CreateUserCommand,
   ): Promise<Result<AggregateID, UserAlreadyExistsError>> {
-    const user = UserEntity.create({
+    const userProps: UserProps = {
       email: command.email,
-      address: new Address({
-        country: command.country,
-        postalCode: command.postalCode,
-        street: command.street,
-      }),
-    });
+      name: command.name,
+      password: await hash(command.password, 10),
+      role: command.role,
+    };
+
+    const user = UserEntity.create(userProps);
 
     try {
-      /* Wrapping operation in a transaction to make sure
-         that all domain events are processed atomically */
-      await this.userRepo.transaction(async () => this.userRepo.insert(user));
+      await this.prisma.$transaction([
+        this.prisma.user.create({ data: userProps }),
+      ]);
       return Ok(user.id);
     } catch (error: any) {
       if (error instanceof ConflictException) {

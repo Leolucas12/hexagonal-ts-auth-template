@@ -350,7 +350,7 @@ Entities:
 - Must be consistent on creation. Validate Entities and other domain objects on creation and throw an error on first failure. [Fail Fast](https://en.wikipedia.org/wiki/Fail-fast).
 - Avoid no-arg (empty) constructors, accept and validate all required properties in a constructor (or in a [factory method](https://en.wikipedia.org/wiki/Factory_method_pattern) like `create()`).
 - For optional properties that require some complex setting up, [Fluent interface](https://en.wikipedia.org/wiki/Fluent_interface) and [Builder Pattern](https://refactoring.guru/design-patterns/builder) can be used.
-- Make Entities partially immutable. Identify what properties shouldn't change after creation and make them `readonly` (for example `id` or `createdAt`).
+- Make Entities partially immutable. Identify what properties shouldn't change after creation and make them `readonly` (for example `id` or `created_at`).
 
 **Note**: A lot of people tend to create one module per entity, but this approach is not very good. Each module may have multiple entities. One thing to keep in mind is that putting entities in a single module requires those entities to have related business logic, don't group unrelated entities in one module.
 

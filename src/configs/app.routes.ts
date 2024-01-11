@@ -12,6 +12,9 @@ const v1 = 'v1';
 
 export const routesV1 = {
   version: v1,
+  auth: {
+    login: `login`
+  },
   user: {
     root: usersRoot,
     delete: `/${usersRoot}/:id`,

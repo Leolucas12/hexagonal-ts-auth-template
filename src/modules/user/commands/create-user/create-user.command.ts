@@ -1,19 +1,20 @@
 import { Command, CommandProps } from '@libs/ddd';
+import { Role } from '@prisma/client';
 
 export class CreateUserCommand extends Command {
   readonly email: string;
 
-  readonly country: string;
+  readonly name: string;
 
-  readonly postalCode: string;
+  readonly password: string;
 
-  readonly street: string;
+  readonly role: Role;
 
   constructor(props: CommandProps<CreateUserCommand>) {
     super(props);
     this.email = props.email;
-    this.country = props.country;
-    this.postalCode = props.postalCode;
-    this.street = props.street;
+    this.name = props.name;
+    this.password = props.password;
+    this.role = props.role;
   }
 }

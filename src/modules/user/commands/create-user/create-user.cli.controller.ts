@@ -1,8 +1,9 @@
-import { Inject, Logger } from '@nestjs/common';
-import { Command, Console } from 'nestjs-console';
-import { CommandBus } from '@nestjs/cqrs';
-import { CreateUserCommand } from './create-user.command';
 import { LoggerPort } from '@libs/ports/logger.port';
+import { Inject, Logger } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
+import { Role } from '@prisma/client';
+import { Command, Console } from 'nestjs-console';
+import { CreateUserCommand } from './create-user.command';
 
 // Allows creating a user using CLI (Command Line Interface)
 @Console({
@@ -22,15 +23,15 @@ export class CreateUserCliController {
   })
   async createUser(
     email: string,
-    country: string,
-    postalCode: string,
-    street: string,
+    name: string,
+    password: string,
+    role: Role,
   ): Promise<void> {
     const command = new CreateUserCommand({
       email,
-      country,
-      postalCode,
-      street,
+      name,
+      password,
+      role,
     });
 
     const result = await this.commandBus.execute(command);

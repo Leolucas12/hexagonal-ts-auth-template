@@ -1,9 +1,8 @@
 import { Mapper } from '@libs/ddd';
-import { UserModel, userSchema } from './database/user.repository';
-import { Address } from './domain/value-objects/address.value-object';
+import { Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { UserEntity } from './domain/user.entity';
 import { UserResponseDto } from './dtos/user.response.dto';
-import { Injectable } from '@nestjs/common';
 
 /**
  * Mapper constructs objects that are used in different layers:
@@ -13,37 +12,29 @@ import { Injectable } from '@nestjs/common';
  */
 
 @Injectable()
-export class UserMapper
-  implements Mapper<UserEntity, UserModel, UserResponseDto>
-{
-  toPersistence(entity: UserEntity): UserModel {
+export class UserMapper implements Mapper<UserEntity, User, UserResponseDto> {
+  toPersistence(entity: UserEntity): User {
     const copy = entity.getProps();
-    const record: UserModel = {
+    const record: User = {
       id: copy.id,
-      createdAt: copy.createdAt,
-      updatedAt: copy.updatedAt,
       email: copy.email,
-      country: copy.address.country,
-      postalCode: copy.address.postalCode,
-      street: copy.address.street,
+      password: copy.password,
+      name: copy.name,
       role: copy.role,
+      created_at: copy.created_at,
+      updated_at: copy.updated_at,
     };
-    return userSchema.parse(record);
+    return record;
   }
 
-  toDomain(record: UserModel): UserEntity {
+  toDomain(record: User): UserEntity {
     const entity = new UserEntity({
       id: record.id,
-      createdAt: new Date(record.createdAt),
-      updatedAt: new Date(record.updatedAt),
       props: {
         email: record.email,
+        name: record.name,
         role: record.role,
-        address: new Address({
-          street: record.street,
-          postalCode: record.postalCode,
-          country: record.country,
-        }),
+        password: record.password,
       },
     });
     return entity;
@@ -53,9 +44,7 @@ export class UserMapper
     const props = entity.getProps();
     const response = new UserResponseDto(entity);
     response.email = props.email;
-    response.country = props.address.country;
-    response.postalCode = props.address.postalCode;
-    response.street = props.address.street;
+    response.name = props.name;
     return response;
   }
 

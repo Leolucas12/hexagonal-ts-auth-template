@@ -1,10 +1,10 @@
 import { DomainEvent, DomainEventProps } from '@libs/ddd';
-import { UserRoles } from '../user.types';
+import { Role } from '@prisma/client';
 
 export class UserRoleChangedDomainEvent extends DomainEvent {
-  readonly oldRole: UserRoles;
+  readonly oldRole: Role;
 
-  readonly newRole: UserRoles;
+  readonly newRole: Role;
 
   constructor(props: DomainEventProps<UserRoleChangedDomainEvent>) {
     super(props);
